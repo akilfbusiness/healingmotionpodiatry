@@ -1,7 +1,7 @@
 import type { SanityImageSource } from '@sanity/image-url'
 import type { PortableTextBlock } from '@portabletext/react'
 import { business as fallbackBusiness } from '@/lib/business-data'
-import { client } from './client'
+import { sanityFetch } from './client'
 import {
   allSlugsQuery,
   areasHubQuery,
@@ -275,80 +275,80 @@ export function getFullAddress(address: SiteSettings['address']) {
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {
-  const data = await client.fetch<SiteSettings | null>(siteSettingsQuery)
+  const data = await sanityFetch<SiteSettings | null>(siteSettingsQuery)
   return data ?? FALLBACK_SITE_SETTINGS
 }
 
 export async function getMainNavigation(): Promise<MainNavigation> {
-  const data = await client.fetch<MainNavigation | null>(mainNavigationQuery)
+  const data = await sanityFetch<MainNavigation | null>(mainNavigationQuery)
   return data ?? { items: [] }
 }
 
 export async function getFooterNavigation(): Promise<FooterNavigation> {
-  const data = await client.fetch<FooterNavigation | null>(footerNavigationQuery)
+  const data = await sanityFetch<FooterNavigation | null>(footerNavigationQuery)
   return data ?? { columns: [], bottomLinks: [] }
 }
 
 export async function getHomePage(): Promise<HomePage | null> {
-  return client.fetch<HomePage | null>(homePageQuery)
+  return sanityFetch<HomePage | null>(homePageQuery)
 }
 
 export async function getServices(): Promise<Service[]> {
-  return client.fetch<Service[]>(servicesQuery)
+  return sanityFetch<Service[]>(servicesQuery)
 }
 
 export async function getServiceBySlug(slug: string): Promise<ServiceDetail | null> {
-  return client.fetch<ServiceDetail | null>(serviceBySlugQuery, { slug })
+  return sanityFetch<ServiceDetail | null>(serviceBySlugQuery, { slug })
 }
 
 export async function getFaqs(): Promise<Faq[]> {
-  return client.fetch<Faq[]>(faqsQuery)
+  return sanityFetch<Faq[]>(faqsQuery)
 }
 
 export async function getTestimonials(): Promise<Testimonial[]> {
-  return client.fetch<Testimonial[]>(testimonialsQuery)
+  return sanityFetch<Testimonial[]>(testimonialsQuery)
 }
 
 export async function getTeamMembers(): Promise<TeamMember[]> {
-  return client.fetch<TeamMember[]>(teamMembersQuery)
+  return sanityFetch<TeamMember[]>(teamMembersQuery)
 }
 
 export async function getBlogPosts(): Promise<BlogPostSummary[]> {
-  return client.fetch<BlogPostSummary[]>(blogPostsQuery)
+  return sanityFetch<BlogPostSummary[]>(blogPostsQuery)
 }
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPostDetail | null> {
-  return client.fetch<BlogPostDetail | null>(blogPostBySlugQuery, { slug })
+  return sanityFetch<BlogPostDetail | null>(blogPostBySlugQuery, { slug })
 }
 
 export async function getBlogCategories(): Promise<BlogCategory[]> {
-  return client.fetch<BlogCategory[]>(blogCategoriesQuery)
+  return sanityFetch<BlogCategory[]>(blogCategoriesQuery)
 }
 
 export async function getServiceAreas(): Promise<ServiceArea[]> {
-  return client.fetch<ServiceArea[]>(serviceAreasQuery)
+  return sanityFetch<ServiceArea[]>(serviceAreasQuery)
 }
 
 export async function getServiceAreaBySlug(slug: string): Promise<ServiceAreaDetail | null> {
-  return client.fetch<ServiceAreaDetail | null>(serviceAreaBySlugQuery, { slug })
+  return sanityFetch<ServiceAreaDetail | null>(serviceAreaBySlugQuery, { slug })
 }
 
 export async function getAreasHub(): Promise<AreasHub | null> {
-  return client.fetch<AreasHub | null>(areasHubQuery)
+  return sanityFetch<AreasHub | null>(areasHubQuery)
 }
 
 export async function getPageBySlug(slug: string): Promise<PageDoc | null> {
-  return client.fetch<PageDoc | null>(pageBySlugQuery, { slug })
+  return sanityFetch<PageDoc | null>(pageBySlugQuery, { slug })
 }
 
 export async function getNotFoundPage(): Promise<NotFoundPageData | null> {
-  return client.fetch<NotFoundPageData | null>(notFoundPageQuery)
+  return sanityFetch<NotFoundPageData | null>(notFoundPageQuery)
 }
 
 export async function getRedirectBySource(
   source: string,
 ): Promise<{ source: string; destination: string; permanent?: boolean } | null> {
-  return client.fetch(redirectBySourceQuery, { source })
+  return sanityFetch(redirectBySourceQuery, { source })
 }
 
 export async function getAllSlugs(): Promise<{
@@ -357,5 +357,5 @@ export async function getAllSlugs(): Promise<{
   areas: string[]
   pages: string[]
 }> {
-  return client.fetch(allSlugsQuery)
+  return sanityFetch(allSlugsQuery)
 }
