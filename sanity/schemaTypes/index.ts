@@ -17,6 +17,7 @@ import { siteSettings } from './documents/siteSettings'
 import { teamMember } from './documents/teamMember'
 import { testimonial } from './documents/testimonial'
 import { aboutPoint } from './objects/aboutPoint'
+import { curatedCard } from './objects/curatedCard'
 import { navItem } from './objects/navItem'
 import {
   beforeAfter,
@@ -84,6 +85,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   navItem,
   seo,
   aboutPoint,
+  curatedCard,
 
   // Page Builder — the flexible block editor used for "body" on
   // Service/Service Area/Blog Post/Page and "additionalSections" on Home

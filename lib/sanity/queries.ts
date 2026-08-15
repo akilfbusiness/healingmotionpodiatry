@@ -102,13 +102,40 @@ export const footerNavigationQuery = groq`*[_type == "footerNavigation"][0]{
   }
 }`
 
+// Resolves one hand-built curated card down to what the frontend needs to
+// render it and build its link: the editor's own title/blurb/label/icon,
+// plus the linked document's type + slug (never its content — the card's
+// text is written for this placement, not pulled from the target page).
+const curatedCardProjection = /* groq */ `
+  displayTitle,
+  displayBlurb,
+  linkLabel,
+  icon,
+  image,
+  "refType": reference->_type,
+  "refSlug": reference->slug.current,
+  "refTitle": reference->name,
+  "refSuburb": reference->suburb,
+  "refPostTitle": reference->title
+`
+
 export const homePageQuery = groq`*[_type == "homePage"][0]{
   hero,
   about,
-  servicesPreview{
+  conditionsGrid{
     heading,
     subheading,
-    services[]->{ name, "slug": slug.current, summary, icon }
+    cards[]{ ${curatedCardProjection} }
+  },
+  servicesGrid{
+    heading,
+    subheading,
+    cards[]{ ${curatedCardProjection} }
+  },
+  suburbsServed{
+    heading,
+    subheading,
+    cards[]{ ${curatedCardProjection} }
   },
   practitionerSection{
     heading,

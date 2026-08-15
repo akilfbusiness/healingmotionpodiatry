@@ -7,7 +7,9 @@ export const homePage = defineType({
   groups: [
     { name: 'hero', title: 'Hero' },
     { name: 'about', title: 'About' },
-    { name: 'services', title: 'Services Preview' },
+    { name: 'conditions', title: 'Conditions We Treat' },
+    { name: 'services', title: 'Services' },
+    { name: 'suburbs', title: 'Suburbs Served' },
     { name: 'practitioner', title: 'Practitioner' },
     { name: 'faq', title: 'FAQ Preview' },
     { name: 'testimonials', title: 'Testimonials' },
@@ -73,21 +75,64 @@ export const homePage = defineType({
       ],
     }),
 
-    // Services Preview
+    // Conditions We Treat — fully manual. Nothing here is auto-populated;
+    // every card is hand-added, hand-written, and hand-ordered in the Studio.
     defineField({
-      name: 'servicesPreview',
-      title: 'Services Preview Section',
+      name: 'conditionsGrid',
+      title: 'Conditions We Treat Section',
+      type: 'object',
+      group: 'conditions',
+      fields: [
+        defineField({ name: 'heading', title: 'Heading', type: 'string' }),
+        defineField({ name: 'subheading', title: 'Subheading', type: 'text' }),
+        defineField({
+          name: 'cards',
+          title: 'Cards',
+          description:
+            'Add, remove, and reorder cards freely. Each card links to a real Service page but has its own hand-written title, blurb, and link text.',
+          type: 'array',
+          of: [{ type: 'curatedCard' }],
+        }),
+      ],
+    }),
+
+    // Services — fully manual, same mechanism as Conditions above.
+    defineField({
+      name: 'servicesGrid',
+      title: 'Services Section',
       type: 'object',
       group: 'services',
       fields: [
         defineField({ name: 'heading', title: 'Heading', type: 'string' }),
         defineField({ name: 'subheading', title: 'Subheading', type: 'text' }),
         defineField({
-          name: 'services',
-          title: 'Services to Feature',
-          description: 'Leave empty to automatically show all services',
+          name: 'cards',
+          title: 'Cards',
+          description:
+            'Add, remove, and reorder cards freely. Each card links to a real Service page but has its own hand-written title, blurb, and link text.',
           type: 'array',
-          of: [{ type: 'reference', to: [{ type: 'service' }] }],
+          of: [{ type: 'curatedCard' }],
+        }),
+      ],
+    }),
+
+    // Suburbs Served — fully manual, same mechanism, for internal linking to
+    // Service Area pages.
+    defineField({
+      name: 'suburbsServed',
+      title: 'Suburbs Served Section',
+      type: 'object',
+      group: 'suburbs',
+      fields: [
+        defineField({ name: 'heading', title: 'Heading', type: 'string' }),
+        defineField({ name: 'subheading', title: 'Subheading', type: 'text' }),
+        defineField({
+          name: 'cards',
+          title: 'Cards',
+          description:
+            'Add, remove, and reorder cards freely. Each card links to a real Service Area page but has its own hand-written title, blurb, and link text.',
+          type: 'array',
+          of: [{ type: 'curatedCard' }],
         }),
       ],
     }),
