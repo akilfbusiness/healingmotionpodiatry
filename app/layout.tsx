@@ -20,18 +20,27 @@ const manrope = Manrope({
   display: 'swap',
 })
 
+// Hardcoded fallbacks — only used if Sanity has no siteSettings.defaultSeo
+// value set yet (e.g. very first load, before the Studio doc is filled in).
+// Once "Default SEO" is set in /studio > Site Configuration > Site Settings,
+// those values take over here automatically.
+const FALLBACK_TITLE =
+  'BEST Podiatrist in Melbourne | Expert Family, Sports and Custom Orthotics Podiatry in Roxburgh Park Melbourne | Healing Motion Podiatry'
+const FALLBACK_DESCRIPTION =
+  'Expert Family, Sports, Custom Orthotics & Heel Pain Podiatry in Roxburgh Park Melbourne — specialise in ingrown toenails, diabetic foot care, orthotics, sports injuries, and general foot health. Shop 25E/250 Somerton Rd, Roxburgh Park VIC 3064 or Call 0415 595 956'
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings()
+  const title = settings.defaultSeo?.metaTitle || FALLBACK_TITLE
+  const description = settings.defaultSeo?.metaDescription || FALLBACK_DESCRIPTION
 
   return {
     metadataBase: new URL(settings.siteUrl),
     title: {
-      default:
-        'BEST Podiatrist in Melbourne | Expert Family, Sports and Custom Orthotics Podiatry in Roxburgh Park Melbourne | Healing Motion Podiatry',
+      default: title,
       template: `%s | ${settings.name}`,
     },
-    description:
-      'Expert Family, Sports, Custom Orthotics & Heel Pain Podiatry in Roxburgh Park Melbourne — specialise in ingrown toenails, diabetic foot care, orthotics, sports injuries, and general foot health. Shop 25E/250 Somerton Rd, Roxburgh Park VIC 3064 or Call 0415 595 956',
+    description,
     generator: 'v0.app',
     keywords: [
       'podiatrist Roxburgh Park',
@@ -46,22 +55,20 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: {
       canonical: '/',
     },
+    robots: settings.defaultSeo?.noIndex ? { index: false, follow: false } : undefined,
     openGraph: {
       type: 'website',
       locale: 'en_AU',
       url: settings.siteUrl,
       siteName: settings.name,
-      title:
-        'BEST Podiatrist in Melbourne | Expert Family, Sports and Custom Orthotics Podiatry in Roxburgh Park Melbourne | Healing Motion Podiatry',
-      description:
-        'Expert Family, Sports, Custom Orthotics & Heel Pain Podiatry in Roxburgh Park Melbourne — specialise in ingrown toenails, diabetic foot care, orthotics, sports injuries, and general foot health. Shop 25E/250 Somerton Rd, Roxburgh Park VIC 3064 or Call 0415 595 956',
+      title,
+      description,
       images: [{ url: '/opengraph-image.png', width: 1200, height: 630 }],
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${settings.name} | Podiatrist in Roxburgh Park, Melbourne`,
-      description:
-        'Expert podiatry care in Roxburgh Park — ingrown toenails, diabetic foot care, orthotics, sports injuries, and general foot health.',
+      title,
+      description,
     },
   }
 }

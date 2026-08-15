@@ -65,6 +65,7 @@ export type SiteSettings = {
     countryName: string
   }
   hours: HoursEntry[]
+  defaultSeo?: Seo
 }
 
 export type Service = {

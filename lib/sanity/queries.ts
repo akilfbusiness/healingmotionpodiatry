@@ -80,7 +80,8 @@ export const siteSettingsQuery = groq`*[_type == "siteSettings"][0]{
   siteUrl,
   hoursDisplay,
   address,
-  hours
+  hours,
+  defaultSeo{ ${seoFields} }
 }`
 
 export const mainNavigationQuery = groq`*[_type == "mainNavigation"][0]{
