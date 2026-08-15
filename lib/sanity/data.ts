@@ -111,6 +111,29 @@ export type TeamMember = {
   isPrimary?: boolean
 }
 
+// A hand-built curated card, as resolved for the frontend: the editor's own
+// title/blurb/link label/icon/image, plus the type + slug needed to build a
+// link to the real page it references. See curatedCardProjection in
+// lib/sanity/queries.ts for how `refType`/`refSlug`/etc. are derived.
+export type CuratedCard = {
+  displayTitle?: string
+  displayBlurb: string
+  linkLabel?: string
+  icon?: string
+  image?: SanityImageSource & { alt?: string }
+  refType?: 'service' | 'serviceArea' | 'blogPost' | 'page'
+  refSlug?: string
+  refTitle?: string
+  refSuburb?: string
+  refPostTitle?: string
+}
+
+export type CuratedSection = {
+  heading?: string
+  subheading?: string
+  cards?: CuratedCard[]
+}
+
 export type HomePage = {
   hero: {
     badge?: string
@@ -130,11 +153,9 @@ export type HomePage = {
     imageAlt?: string
     points?: { title?: string; description?: string }[]
   }
-  servicesPreview: {
-    heading?: string
-    subheading?: string
-    services?: Service[]
-  }
+  conditionsGrid: CuratedSection
+  servicesGrid: CuratedSection
+  suburbsServed: CuratedSection
   practitionerSection: {
     heading?: string
     member?: TeamMember
