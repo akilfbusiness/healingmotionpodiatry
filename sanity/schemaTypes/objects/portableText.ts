@@ -10,7 +10,16 @@ import { defineArrayMember, defineField } from 'sanity'
 //
 // Internal Link annotations resolve against these document types because
 // only these have a dedicated frontend route (see lib/sanity/nav.ts).
-const INTERNAL_LINK_TYPES = ['service', 'serviceArea', 'blogPost', 'page']
+const INTERNAL_LINK_TYPES = [
+  'service',
+  'serviceArea',
+  'blogPost',
+  'page',
+  'category',
+  'condition',
+  'treatment',
+  'hubPage',
+]
 
 export const portableTextOf = [
   defineArrayMember({

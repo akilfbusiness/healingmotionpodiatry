@@ -12,11 +12,14 @@ const CogIcon = () => createElement(Icon, { symbol: 'cog' })
 // Document types pulled into custom singleton items below. Everything else
 // is rendered with the default per-type list further down, unchanged.
 const SITE_CONFIG_TYPES = ['siteSettings', 'mainNavigation', 'footerNavigation', 'notFoundPage']
-const SINGLETON_TYPES = [...SITE_CONFIG_TYPES, 'homePage', 'areasHub']
+const SINGLETON_TYPES = [...SITE_CONFIG_TYPES, 'homePage', 'areasHub', 'hubPage']
 // Non-singleton document types that are nested under a custom group item
 // below (e.g. Service/Service Area under "Services") and therefore must
 // also be excluded from the flat fallback list, or they'd render twice.
 const GROUPED_COLLECTION_TYPES = [
+  'category',
+  'condition',
+  'treatment',
   'service',
   'serviceArea',
   'practitioner',

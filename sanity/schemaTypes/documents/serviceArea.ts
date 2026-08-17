@@ -62,6 +62,31 @@ export const serviceArea = defineType({
       group: 'content',
     }),
     defineField({
+      name: 'featuredConditions',
+      title: 'Featured Conditions',
+      description:
+        'Conditions to highlight and internally link to from this suburb page. Leave empty to show none.',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'condition' }] }],
+      group: 'content',
+    }),
+    defineField({
+      name: 'landmarks',
+      title: 'Local Landmarks',
+      description: 'Nearby landmarks to mention for local relevance, e.g. "Roxburgh Park Shopping Centre"',
+      type: 'array',
+      of: [{ type: 'string' }],
+      group: 'content',
+    }),
+    defineField({
+      name: 'travelInfo',
+      title: 'Travel Info',
+      description: 'How to get to the clinic from this suburb, e.g. parking, public transport',
+      type: 'text',
+      rows: 2,
+      group: 'content',
+    }),
+    defineField({
       name: 'order',
       title: 'Display Order',
       type: 'number',

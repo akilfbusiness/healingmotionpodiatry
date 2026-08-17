@@ -3,9 +3,12 @@ import type { SchemaTypeDefinition } from 'sanity'
 import { areasHub } from './documents/areasHub'
 import { blogCategory } from './documents/blogCategory'
 import { blogPost } from './documents/blogPost'
+import { category } from './documents/category'
+import { condition } from './documents/condition'
 import { faq } from './documents/faq'
 import { footerNavigation } from './documents/footerNavigation'
 import { homePage } from './documents/homePage'
+import { hubPage } from './documents/hubPage'
 import { mainNavigation } from './documents/mainNavigation'
 import { notFoundPage } from './documents/notFoundPage'
 import { page } from './documents/page'
@@ -16,6 +19,7 @@ import { serviceArea } from './documents/serviceArea'
 import { siteSettings } from './documents/siteSettings'
 import { teamMember } from './documents/teamMember'
 import { testimonial } from './documents/testimonial'
+import { treatment } from './documents/treatment'
 import { aboutPoint } from './objects/aboutPoint'
 import { curatedCard } from './objects/curatedCard'
 import { navItem } from './objects/navItem'
@@ -55,9 +59,22 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   // and aboutSection documents were unused and have been deleted.)
   homePage,
 
-  // Services — fully migrated. Service and Service Area remain normal
-  // collections (default "+ Create" behavior); Areas We Serve (Hub Page)
-  // is locked as a singleton in structure.ts.
+  // Core 30 architecture — Category / Condition / Treatment. Category sits
+  // at the top of the hierarchy; Condition and Treatment each hold a
+  // required single `category` reference so every page has exactly one
+  // home in the site structure (preventing search-intent overlap between
+  // pages). Conditions Hub and Treatments Hub are locked singletons in
+  // structure.ts.
+  category,
+  condition,
+  treatment,
+  hubPage,
+
+  // Services — legacy flat services. Kept registered for any remaining
+  // content/redirect purposes during migration to Category/Condition/
+  // Treatment above; new content should use the Core 30 types instead.
+  // Service Area remains the live "suburb" page type (see /podiatrist-[slug]);
+  // Areas We Serve (Hub Page) is locked as a singleton in structure.ts.
   service,
   serviceArea,
   areasHub,

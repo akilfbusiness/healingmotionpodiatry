@@ -87,6 +87,33 @@ export const siteSettings = defineType({
       description: 'Sitewide fallback SEO used when a page does not set its own',
       type: 'seo',
     }),
+    defineField({
+      name: 'ahpraNumber',
+      title: 'AHPRA Registration Number',
+      description: 'Used in JSON-LD Person/MedicalClinic structured data',
+      type: 'string',
+    }),
+    defineField({
+      name: 'geo',
+      title: 'Geo Coordinates',
+      description: 'Used in JSON-LD structured data for local SEO',
+      type: 'object',
+      fields: [
+        defineField({ name: 'lat', title: 'Latitude', type: 'number' }),
+        defineField({ name: 'lng', title: 'Longitude', type: 'number' }),
+      ],
+    }),
+    defineField({
+      name: 'googleMapsEmbedUrl',
+      title: 'Google Maps Embed URL',
+      type: 'url',
+    }),
+    defineField({
+      name: 'bookingUrl',
+      title: 'Booking URL',
+      description: 'Where "Book Now" buttons should link to',
+      type: 'url',
+    }),
   ],
   preview: {
     select: { title: 'name' },
