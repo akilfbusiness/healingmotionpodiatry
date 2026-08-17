@@ -50,6 +50,11 @@ const FOOTER_NAVIGATION_ID = 'e80fc844-220b-45d3-8d44-9086d28bf6b6'
 const NOT_FOUND_PAGE_ID = '14ab7656-db4e-4536-b16d-a3e558ddc3d6'
 const HOME_PAGE_ID = '39e7c8e6-ddb6-4330-bcf9-d73cb3744f81'
 const AREAS_HUB_ID = '10ef321c-4d66-4306-82f6-3ebcac3ef12d'
+// hubPage is a single schema type reused for both the Conditions and
+// Treatments hub — each pinned to its own fixed document ID below so both
+// are singletons (no "+ Create", no risk of accidentally making a third).
+const CONDITIONS_HUB_ID = '33ac77bc-c447-434f-b786-6953af8fd860'
+const TREATMENTS_HUB_ID = '6215a3f9-8d77-45cf-85aa-6ca01fdaaa6f'
 
 export const structure: StructureResolver = (S) =>
   S.list()
@@ -83,8 +88,32 @@ export const structure: StructureResolver = (S) =>
         .title('Home Page')
         .child(S.document().schemaType('homePage').documentId(HOME_PAGE_ID)),
 
+      // Core 30 architecture. Category sits above Condition and Treatment —
+      // every Condition/Treatment has exactly one required Category
+      // reference, so this is the top of the site's topical hierarchy.
+      // Conditions Hub / Treatments Hub are singletons pinned to fixed IDs
+      // (same pattern as Home Page / Areas We Serve above).
       S.listItem()
-        .title('Services')
+        .title('Care (Categories, Conditions & Treatments)')
+        .child(
+          S.list()
+            .title('Care')
+            .items([
+              S.documentTypeListItem('category').title('Category'),
+              S.documentTypeListItem('condition').title('Condition'),
+              S.documentTypeListItem('treatment').title('Treatment'),
+              S.divider(),
+              S.listItem()
+                .title('Conditions Hub Page')
+                .child(S.document().schemaType('hubPage').documentId(CONDITIONS_HUB_ID)),
+              S.listItem()
+                .title('Treatments Hub Page')
+                .child(S.document().schemaType('hubPage').documentId(TREATMENTS_HUB_ID)),
+            ]),
+        ),
+
+      S.listItem()
+        .title('Services (Legacy)')
         .child(
           S.list()
             .title('Services')

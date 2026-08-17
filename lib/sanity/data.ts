@@ -8,9 +8,16 @@ import {
   blogCategoriesQuery,
   blogPostBySlugQuery,
   blogPostsQuery,
+  categoriesQuery,
+  categoryBySlugQuery,
+  conditionBySlugQuery,
+  conditionsHubListQuery,
+  conditionsQuery,
   faqsQuery,
   footerNavigationQuery,
+  homePageCategorySectionsQuery,
   homePageQuery,
+  hubPageQuery,
   mainNavigationQuery,
   notFoundPageQuery,
   pageBySlugQuery,
@@ -22,6 +29,9 @@ import {
   siteSettingsQuery,
   teamMembersQuery,
   testimonialsQuery,
+  treatmentBySlugQuery,
+  treatmentsHubListQuery,
+  treatmentsQuery,
 } from './queries'
 import type { ResolvedNavItem } from './nav'
 
@@ -66,6 +76,102 @@ export type SiteSettings = {
   }
   hours: HoursEntry[]
   defaultSeo?: Seo
+}
+
+// --- Core 30: Category / Condition / Treatment -----------------------------
+//
+// AnswerCard is the shared shape used for every condition/treatment listing
+// context (category grids, hub page listings, home page sections, related
+// items) — see answerCardFields in lib/sanity/queries.ts.
+export type AnswerCard = {
+  title: string
+  slug: string
+  answerCapsule?: string
+  homepageBlurb?: string
+  heroImage?: SanityImageSource
+}
+
+export type Category = {
+  title: string
+  slug: string
+  intro?: string
+  heroImage?: SanityImageSource
+  orderRank?: number
+}
+
+export type CategoryDetail = Omit<Category, 'orderRank'> & {
+  h1?: string
+  body?: PageBuilderBlock[]
+  conditions: AnswerCard[]
+  treatments: AnswerCard[]
+  faqs?: Faq[]
+  seo?: Seo
+}
+
+export type Condition = {
+  title: string
+  slug: string
+  answerCapsule?: string
+  heroImage?: SanityImageSource
+  categorySlug?: string
+  categoryTitle?: string
+}
+
+export type ConditionDetail = Omit<Condition, 'categorySlug' | 'categoryTitle'> & {
+  h1?: string
+  body?: PageBuilderBlock[]
+  category?: { title: string; slug: string }
+  alsoListIn?: { title: string; slug: string }[]
+  relatedTreatments?: AnswerCard[]
+  relatedConditions?: AnswerCard[]
+  faqs?: Faq[]
+  seo?: Seo
+}
+
+export type Treatment = {
+  title: string
+  slug: string
+  answerCapsule?: string
+  heroImage?: SanityImageSource
+  categorySlug?: string
+  categoryTitle?: string
+}
+
+export type TreatmentDetail = Omit<Treatment, 'categorySlug' | 'categoryTitle'> & {
+  h1?: string
+  body?: PageBuilderBlock[]
+  category?: { title: string; slug: string }
+  alsoListIn?: { title: string; slug: string }[]
+  // Derived via reverse lookup from condition.relatedTreatments — see
+  // treatmentBySlugQuery. Not stored on the treatment document itself.
+  relatedConditions?: AnswerCard[]
+  faqs?: Faq[]
+  seo?: Seo
+}
+
+export type HubPage = {
+  title?: string
+  h1?: string
+  intro?: string
+  seo?: Seo
+}
+
+export type HubGroup = {
+  title: string
+  slug: string
+  items: AnswerCard[]
+}
+
+// One category's home page section: hand-featured items first, then every
+// remaining published condition/treatment in that category — see
+// homePageCategorySectionsQuery. This guarantees full listing completeness
+// without relying on anyone remembering to feature every item.
+export type HomePageCategorySection = {
+  title: string
+  slug: string
+  featured: (AnswerCard & { type: 'condition' | 'treatment' })[]
+  remainingConditions: AnswerCard[]
+  remainingTreatments: AnswerCard[]
 }
 
 export type Service = {
@@ -116,25 +222,20 @@ export type TeamMember = {
 // title/blurb/link label/icon/image, plus the type + slug needed to build a
 // link to the real page it references. See curatedCardProjection in
 // lib/sanity/queries.ts for how `refType`/`refSlug`/etc. are derived.
-export type CuratedCard = {
-  displayTitle?: string
-  displayBlurb: string
-  linkLabel?: string
-  icon?: string
-  image?: SanityImageSource & { alt?: string }
-  refType?: 'service' | 'serviceArea' | 'blogPost' | 'page'
-  refSlug?: string
-  refTitle?: string
-  refSuburb?: string
-  refPostTitle?: string
+export type Practitioner = {
+  name: string
+  title?: string
+  credentials?: string
+  bio?: string
+  photo?: SanityImageSource
+  ahpraNumber?: string
+  specialInterests?: string[]
+  languagesSpoken?: string[]
 }
 
-export type CuratedSection = {
-  heading?: string
-  subheading?: string
-  cards?: CuratedCard[]
-}
-
+// The home page is now mostly an engine, not a manual curation surface —
+// see homePage.ts. Category/condition/treatment sections are derived at
+// query time via homePageCategorySectionsQuery, not stored on this document.
 export type HomePage = {
   hero: {
     badge?: string
@@ -154,21 +255,18 @@ export type HomePage = {
     imageAlt?: string
     points?: { title?: string; description?: string }[]
   }
-  conditionsGrid: CuratedSection
-  servicesGrid: CuratedSection
-  suburbsServed: CuratedSection
+  quickLinks?: AnswerCard[]
+  trustLogos?: (SanityImageSource & { alt?: string })[]
   practitionerSection: {
     heading?: string
-    member?: TeamMember
+    practitioner?: Practitioner
   }
   faqPreview: {
     heading?: string
     faqs?: Faq[]
   }
-  testimonialsSection: {
-    heading?: string
-    testimonials?: Testimonial[]
-  }
+  firstAppointmentBody?: PortableTextBlock[]
+  feesBody?: PortableTextBlock[]
   additionalSections?: PageBuilderBlock[]
   seo?: Seo
 }
@@ -294,6 +392,52 @@ export async function getHomePage(): Promise<HomePage | null> {
   return sanityFetch<HomePage | null>(homePageQuery)
 }
 
+// --- Core 30: Category / Condition / Treatment -----------------------------
+
+export async function getCategories(): Promise<Category[]> {
+  return sanityFetch<Category[]>(categoriesQuery)
+}
+
+export async function getCategoryBySlug(slug: string): Promise<CategoryDetail | null> {
+  return sanityFetch<CategoryDetail | null>(categoryBySlugQuery, { slug })
+}
+
+export async function getConditions(): Promise<Condition[]> {
+  return sanityFetch<Condition[]>(conditionsQuery)
+}
+
+export async function getConditionBySlug(slug: string): Promise<ConditionDetail | null> {
+  return sanityFetch<ConditionDetail | null>(conditionBySlugQuery, { slug })
+}
+
+export async function getTreatments(): Promise<Treatment[]> {
+  return sanityFetch<Treatment[]>(treatmentsQuery)
+}
+
+export async function getTreatmentBySlug(slug: string): Promise<TreatmentDetail | null> {
+  return sanityFetch<TreatmentDetail | null>(treatmentBySlugQuery, { slug })
+}
+
+export async function getConditionsHubPage(): Promise<HubPage | null> {
+  return sanityFetch<HubPage | null>(hubPageQuery, { hubType: 'conditions' })
+}
+
+export async function getTreatmentsHubPage(): Promise<HubPage | null> {
+  return sanityFetch<HubPage | null>(hubPageQuery, { hubType: 'treatments' })
+}
+
+export async function getConditionsHubList(): Promise<HubGroup[]> {
+  return sanityFetch<HubGroup[]>(conditionsHubListQuery)
+}
+
+export async function getTreatmentsHubList(): Promise<HubGroup[]> {
+  return sanityFetch<HubGroup[]>(treatmentsHubListQuery)
+}
+
+export async function getHomePageCategorySections(): Promise<HomePageCategorySection[]> {
+  return sanityFetch<HomePageCategorySection[]>(homePageCategorySectionsQuery)
+}
+
 export async function getServices(): Promise<Service[]> {
   return sanityFetch<Service[]>(servicesQuery)
 }
@@ -357,6 +501,9 @@ export async function getAllSlugs(): Promise<{
   posts: string[]
   areas: string[]
   pages: string[]
+  categories: string[]
+  conditions: string[]
+  treatments: string[]
 }> {
   return sanityFetch(allSlugsQuery)
 }
