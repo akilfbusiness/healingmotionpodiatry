@@ -1,16 +1,21 @@
 import { AboutSection } from '@/components/about-section'
-import { ConditionsGridSection } from '@/components/conditions-grid-section'
+import { AccessSection } from '@/components/access-section'
+import { CategorySections } from '@/components/category-sections'
 import { ContactSection } from '@/components/contact-section'
 import { FaqSection } from '@/components/faq-section'
 import { HeroSection } from '@/components/hero-section'
 import { PractitionerSection } from '@/components/practitioner-section'
-import { ServicesGridSection } from '@/components/services-grid-section'
+import { QuickLinksSection } from '@/components/quick-links-section'
 import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
 import { StructuredData } from '@/components/structured-data'
-import { SuburbsServedSection } from '@/components/suburbs-served-section'
-import { TestimonialsSection } from '@/components/testimonials-section'
 
+// Core 30 homepage: everything below the quick-links strip is derived at
+// query time from category/condition/treatment documents (CategorySections)
+// rather than manually curated — see homePageCategorySectionsQuery. No
+// testimonials (AHPRA National Law s133 forbids advertising health services
+// with testimonials/reviews); AccessSection replaces that slot with
+// first-appointment and fees/funding info instead.
 export default function Page() {
   return (
     <>
@@ -18,12 +23,11 @@ export default function Page() {
       <SiteHeader />
       <main>
         <HeroSection />
-        <ServicesGridSection />
-        <ConditionsGridSection />
-        <SuburbsServedSection />
+        <QuickLinksSection />
+        <CategorySections />
         <AboutSection />
         <PractitionerSection />
-        <TestimonialsSection />
+        <AccessSection />
         <FaqSection />
         <ContactSection />
       </main>

@@ -1,5 +1,20 @@
 import { defineField, defineType } from 'sanity'
 
+// The home page is now mostly an ENGINE, not a manual curation surface. The
+// category/condition/treatment sections (which used to be hand-built
+// curatedCard arrays here) are gone — they're derived entirely at query
+// time from the category/condition/treatment documents (see
+// lib/sanity/queries.ts homePageQuery), grouped by category.orderRank, with
+// each category's featuredOnHome items shown first and its remaining
+// children auto-filled in below. This guarantees every published
+// condition/treatment appears on the home page without anyone remembering
+// to add a card for it.
+//
+// Testimonials have been removed entirely from the home page per AHPRA
+// National Law s133, which prohibits health services from using
+// testimonials/reviews in advertising. The `testimonial` schema stays
+// registered (in case another use is found later) but is not linked from
+// anywhere in this rebuild.
 export const homePage = defineType({
   name: 'homePage',
   title: 'Home Page',
@@ -7,12 +22,10 @@ export const homePage = defineType({
   groups: [
     { name: 'hero', title: 'Hero' },
     { name: 'about', title: 'About' },
-    { name: 'conditions', title: 'Conditions We Treat' },
-    { name: 'services', title: 'Services' },
-    { name: 'suburbs', title: 'Suburbs Served' },
+    { name: 'quickLinks', title: 'Quick Links' },
     { name: 'practitioner', title: 'Practitioner' },
     { name: 'faq', title: 'FAQ Preview' },
-    { name: 'testimonials', title: 'Testimonials' },
+    { name: 'access', title: 'Fees & First Appointment' },
     { name: 'more', title: 'Additional Sections' },
     { name: 'seo', title: 'SEO' },
   ],
@@ -75,66 +88,34 @@ export const homePage = defineType({
       ],
     }),
 
-    // Conditions We Treat — fully manual. Nothing here is auto-populated;
-    // every card is hand-added, hand-written, and hand-ordered in the Studio.
+    // Quick Links — a short hand-picked strip of standout Conditions shown
+    // near the top of the page. The full category/condition/treatment
+    // grids further down are NOT configured here — they're derived
+    // automatically from category.orderRank + category.featuredOnHome plus
+    // every remaining published condition/treatment in that category. This
+    // field is intentionally small (max 8) and supplementary, not the
+    // primary listing mechanism.
     defineField({
-      name: 'conditionsGrid',
-      title: 'Conditions We Treat Section',
-      type: 'object',
-      group: 'conditions',
-      fields: [
-        defineField({ name: 'heading', title: 'Heading', type: 'string' }),
-        defineField({ name: 'subheading', title: 'Subheading', type: 'text' }),
-        defineField({
-          name: 'cards',
-          title: 'Cards',
-          description:
-            'Add, remove, and reorder cards freely. Each card links to a real Service page but has its own hand-written title, blurb, and link text.',
-          type: 'array',
-          of: [{ type: 'curatedCard' }],
-        }),
-      ],
+      name: 'quickLinks',
+      title: 'Quick Links Strip',
+      description: 'Up to 8 hand-picked conditions to feature near the top of the home page',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'condition' }] }],
+      group: 'quickLinks',
+      validation: (Rule) => Rule.max(8),
     }),
-
-    // Services — fully manual, same mechanism as Conditions above.
     defineField({
-      name: 'servicesGrid',
-      title: 'Services Section',
-      type: 'object',
-      group: 'services',
-      fields: [
-        defineField({ name: 'heading', title: 'Heading', type: 'string' }),
-        defineField({ name: 'subheading', title: 'Subheading', type: 'text' }),
-        defineField({
-          name: 'cards',
-          title: 'Cards',
-          description:
-            'Add, remove, and reorder cards freely. Each card links to a real Service page but has its own hand-written title, blurb, and link text.',
-          type: 'array',
-          of: [{ type: 'curatedCard' }],
-        }),
+      name: 'trustLogos',
+      title: 'Trust Logos',
+      description: 'e.g. Medicare, HICAPS, private health fund logos',
+      type: 'array',
+      of: [
+        {
+          type: 'image',
+          fields: [defineField({ name: 'alt', title: 'Alt Text', type: 'string' })],
+        },
       ],
-    }),
-
-    // Suburbs Served — fully manual, same mechanism, for internal linking to
-    // Service Area pages.
-    defineField({
-      name: 'suburbsServed',
-      title: 'Suburbs Served Section',
-      type: 'object',
-      group: 'suburbs',
-      fields: [
-        defineField({ name: 'heading', title: 'Heading', type: 'string' }),
-        defineField({ name: 'subheading', title: 'Subheading', type: 'text' }),
-        defineField({
-          name: 'cards',
-          title: 'Cards',
-          description:
-            'Add, remove, and reorder cards freely. Each card links to a real Service Area page but has its own hand-written title, blurb, and link text.',
-          type: 'array',
-          of: [{ type: 'curatedCard' }],
-        }),
-      ],
+      group: 'quickLinks',
     }),
 
     // Practitioner
@@ -146,10 +127,11 @@ export const homePage = defineType({
       fields: [
         defineField({ name: 'heading', title: 'Heading', type: 'string' }),
         defineField({
-          name: 'member',
-          title: 'Team Member',
+          name: 'practitioner',
+          title: 'Practitioner',
+          description: 'Used for both the on-page section and the JSON-LD Person structured data',
           type: 'reference',
-          to: [{ type: 'teamMember' }],
+          to: [{ type: 'practitioner' }],
         }),
       ],
     }),
@@ -172,21 +154,21 @@ export const homePage = defineType({
       ],
     }),
 
-    // Testimonials
+    // Fees & First Appointment — replaces the removed Testimonials section.
     defineField({
-      name: 'testimonialsSection',
-      title: 'Testimonials Section',
-      type: 'object',
-      group: 'testimonials',
-      fields: [
-        defineField({ name: 'heading', title: 'Heading', type: 'string' }),
-        defineField({
-          name: 'testimonials',
-          title: 'Testimonials to Feature',
-          type: 'array',
-          of: [{ type: 'reference', to: [{ type: 'testimonial' }] }],
-        }),
-      ],
+      name: 'firstAppointmentBody',
+      title: 'What to Expect (First Appointment)',
+      type: 'array',
+      of: [{ type: 'block' }],
+      group: 'access',
+    }),
+    defineField({
+      name: 'feesBody',
+      title: 'Fees & Funding',
+      description: 'e.g. Medicare EPC, NDIS, HICAPS, private health — link out to the relevant access pages',
+      type: 'array',
+      of: [{ type: 'block' }],
+      group: 'access',
     }),
 
     defineField({

@@ -1,17 +1,25 @@
-import { getFaqs, getFullAddress, getHomePage, getServices, getSiteSettings } from '@/lib/sanity/data'
+import {
+  getFaqs,
+  getFullAddress,
+  getHomePage,
+  getServices,
+  getSiteSettings,
+  getTreatments,
+} from '@/lib/sanity/data'
 
 // Server-rendered JSON-LD. Kept as a dedicated component so it's easy to
 // extend (e.g. BreadcrumbList) as more pages are added. Data is sourced
 // live from Sanity so structured data always matches the visible content.
 export async function StructuredData() {
-  const [settings, homePage, services, faqs] = await Promise.all([
+  const [settings, homePage, services, treatments, faqs] = await Promise.all([
     getSiteSettings(),
     getHomePage(),
     getServices(),
+    getTreatments(),
     getFaqs(),
   ])
 
-  const practitioner = homePage?.practitionerSection?.member
+  const practitioner = homePage?.practitionerSection?.practitioner
 
   const dayMap: Record<string, string> = {
     Monday: 'Monday',
@@ -54,19 +62,37 @@ export async function StructuredData() {
       employee: {
         '@type': 'Physician',
         name: practitioner.name,
-        jobTitle: practitioner.jobTitle,
+        jobTitle: practitioner.title,
         medicalSpecialty: 'Podiatric',
         worksFor: { '@id': `${settings.siteUrl}/#business` },
+        ...(practitioner.ahpraNumber && {
+          identifier: {
+            '@type': 'PropertyValue',
+            propertyID: 'AHPRA',
+            value: practitioner.ahpraNumber,
+          },
+        }),
       },
     }),
-    makesOffer: services.map((service) => ({
-      '@type': 'Offer',
-      itemOffered: {
-        '@type': 'MedicalProcedure',
-        name: service.name,
-        description: service.summary,
-      },
-    })),
+    makesOffer: [
+      ...treatments.map((treatment) => ({
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'MedicalTherapy',
+          name: treatment.title,
+          description: treatment.answerCapsule,
+        },
+      })),
+      // Legacy `service` documents kept during Core 30 migration.
+      ...services.map((service) => ({
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'MedicalProcedure',
+          name: service.name,
+          description: service.summary,
+        },
+      })),
+    ],
   }
 
   const faqSchema = {

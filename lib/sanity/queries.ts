@@ -103,57 +103,163 @@ export const footerNavigationQuery = groq`*[_type == "footerNavigation"][0]{
   }
 }`
 
-// Resolves one hand-built curated card down to what the frontend needs to
-// render it and build its link: the editor's own title/blurb/label/icon,
-// plus the linked document's type + slug (never its content — the card's
-// text is written for this placement, not pulled from the target page).
-const curatedCardProjection = /* groq */ `
-  displayTitle,
-  displayBlurb,
-  linkLabel,
-  icon,
-  image,
-  "refType": reference->_type,
-  "refSlug": reference->slug.current,
-  "refTitle": reference->name,
-  "refSuburb": reference->suburb,
-  "refPostTitle": reference->title
+// Shared listing shape for Category/Condition/Treatment answer cards (hub
+// pages, home page sections, category grids, related items). See
+// AnswerCard in lib/sanity/data.ts for the matching frontend type.
+const answerCardFields = /* groq */ `
+  title,
+  "slug": slug.current,
+  answerCapsule,
+  homepageBlurb,
+  heroImage
 `
 
 export const homePageQuery = groq`*[_type == "homePage"][0]{
   hero,
   about,
-  conditionsGrid{
-    heading,
-    subheading,
-    cards[]{ ${curatedCardProjection} }
-  },
-  servicesGrid{
-    heading,
-    subheading,
-    cards[]{ ${curatedCardProjection} }
-  },
-  suburbsServed{
-    heading,
-    subheading,
-    cards[]{ ${curatedCardProjection} }
-  },
+  "quickLinks": quickLinks[]->{ ${answerCardFields} },
+  trustLogos,
   practitionerSection{
     heading,
-    member->{ name, slug, jobTitle, credentials, bio, photo }
+    practitioner->{ name, title, credentials, bio, photo, ahpraNumber, specialInterests, languagesSpoken }
   },
   faqPreview{
     heading,
-    faqs[]->{ question, answer, order } | order(order asc)
+    "faqs": select(
+      count(faqs) > 0 => faqs[]->{ question, answer, order } | order(order asc),
+      *[_type == "faq"] | order(order asc){ question, answer, order }
+    )
   },
-  testimonialsSection{
-    heading,
-    testimonials[]->{ authorName, authorRole, quote, rating, photo, source }
-  },
+  firstAppointmentBody,
+  feesBody,
   additionalSections[]{
     ${pageBuilderProjection}
   },
   seo{ ${seoFields} }
+}`
+
+// --- Core 30: Category / Condition / Treatment -----------------------------
+//
+// Category sits above Condition and Treatment. Every condition/treatment has
+// exactly one required `category` reference (its one true home in the site
+// hierarchy — see condition.ts/treatment.ts for why this matters for SEO).
+// The Condition <-> Treatment relationship is stored ONLY on
+// condition.relatedTreatments; a Treatment's "conditions this treats" list
+// is always derived via the reverse `references()` lookup below, so there is
+// a single source of truth and the two sides cannot drift out of sync.
+
+export const categoriesQuery = groq`*[_type == "category"] | order(orderRank asc){
+  title,
+  "slug": slug.current,
+  intro,
+  heroImage,
+  orderRank
+}`
+
+export const categoryBySlugQuery = groq`*[_type == "category" && slug.current == $slug][0]{
+  title,
+  "slug": slug.current,
+  h1,
+  intro,
+  heroImage,
+  body[]{ ${pageBuilderProjection} },
+  "conditions": *[_type == "condition" && (category._ref == ^._id || ^._id in alsoListIn[]._ref)]{ ${answerCardFields} },
+  "treatments": *[_type == "treatment" && (category._ref == ^._id || ^._id in alsoListIn[]._ref)]{ ${answerCardFields} },
+  "faqs": faqs[]->{ question, answer, order } | order(order asc),
+  seo{ ${seoFields} }
+}`
+
+export const conditionsQuery = groq`*[_type == "condition"] | order(title asc){
+  title,
+  "slug": slug.current,
+  answerCapsule,
+  heroImage,
+  "categorySlug": category->slug.current,
+  "categoryTitle": category->title
+}`
+
+export const conditionBySlugQuery = groq`*[_type == "condition" && slug.current == $slug][0]{
+  title,
+  "slug": slug.current,
+  h1,
+  answerCapsule,
+  heroImage,
+  body[]{ ${pageBuilderProjection} },
+  "category": category->{ title, "slug": slug.current },
+  "alsoListIn": alsoListIn[]->{ title, "slug": slug.current },
+  "relatedTreatments": relatedTreatments[]->{ ${answerCardFields} },
+  "relatedConditions": relatedConditions[]->{ ${answerCardFields} },
+  "faqs": faqs[]->{ question, answer, order } | order(order asc),
+  seo{ ${seoFields} }
+}`
+
+export const treatmentsQuery = groq`*[_type == "treatment"] | order(title asc){
+  title,
+  "slug": slug.current,
+  answerCapsule,
+  heroImage,
+  "categorySlug": category->slug.current,
+  "categoryTitle": category->title
+}`
+
+export const treatmentBySlugQuery = groq`*[_type == "treatment" && slug.current == $slug][0]{
+  title,
+  "slug": slug.current,
+  h1,
+  answerCapsule,
+  heroImage,
+  body[]{ ${pageBuilderProjection} },
+  "category": category->{ title, "slug": slug.current },
+  "alsoListIn": alsoListIn[]->{ title, "slug": slug.current },
+  "relatedConditions": *[_type == "condition" && references(^._id)]{ ${answerCardFields} },
+  "faqs": faqs[]->{ question, answer, order } | order(order asc),
+  seo{ ${seoFields} }
+}`
+
+export const hubPageQuery = groq`*[_type == "hubPage" && hubType == $hubType][0]{
+  title,
+  h1,
+  intro,
+  seo{ ${seoFields} }
+}`
+
+// Full grouped listing for the Conditions Hub (/conditions): every category
+// that has at least one published condition, each with its full list of
+// conditions (Answer Capsule used as the listing blurb).
+export const conditionsHubListQuery = groq`*[_type == "category"] | order(orderRank asc){
+  title,
+  "slug": slug.current,
+  "items": *[_type == "condition" && (category._ref == ^._id || ^._id in alsoListIn[]._ref)] | order(title asc){ ${answerCardFields} }
+}[count(items) > 0]`
+
+// Same shape, for the Treatments Hub (/treatments).
+export const treatmentsHubListQuery = groq`*[_type == "category"] | order(orderRank asc){
+  title,
+  "slug": slug.current,
+  "items": *[_type == "treatment" && (category._ref == ^._id || ^._id in alsoListIn[]._ref)] | order(title asc){ ${answerCardFields} }
+}[count(items) > 0]`
+
+// Drives the home page's category sections. For each category (in
+// orderRank order): the hand-picked `featuredOnHome` items first, then every
+// other published condition/treatment in that category, so nothing can be
+// silently left off the home page just because it wasn't hand-featured.
+export const homePageCategorySectionsQuery = groq`*[_type == "category"] | order(orderRank asc){
+  title,
+  "slug": slug.current,
+  "featured": featuredOnHome[]->{
+    ${answerCardFields},
+    "type": _type
+  },
+  "remainingConditions": *[
+    _type == "condition" &&
+    category._ref == ^._id &&
+    !(_id in ^.featuredOnHome[]._ref)
+  ] | order(title asc){ ${answerCardFields} },
+  "remainingTreatments": *[
+    _type == "treatment" &&
+    category._ref == ^._id &&
+    !(_id in ^.featuredOnHome[]._ref)
+  ] | order(title asc){ ${answerCardFields} }
 }`
 
 export const servicesQuery = groq`*[_type == "service"] | order(order asc){
@@ -270,7 +376,10 @@ export const serviceAreaBySlugQuery = groq`*[_type == "serviceArea" && slug.curr
   summary,
   heroImage,
   distanceFromClinic,
+  landmarks,
+  travelInfo,
   "featuredServices": featuredServices[]->{ name, "slug": slug.current, summary },
+  "featuredConditions": featuredConditions[]->{ ${answerCardFields} },
   answerCapsule,
   body[]{
     ${pageBuilderProjection}
@@ -320,5 +429,8 @@ export const allSlugsQuery = groq`{
   "services": *[_type == "service" && defined(slug.current)].slug.current,
   "posts": *[_type == "blogPost" && defined(slug.current)].slug.current,
   "areas": *[_type == "serviceArea" && defined(slug.current)].slug.current,
-  "pages": *[_type == "page" && defined(slug.current)].slug.current
+  "pages": *[_type == "page" && defined(slug.current)].slug.current,
+  "categories": *[_type == "category" && defined(slug.current)].slug.current,
+  "conditions": *[_type == "condition" && defined(slug.current)].slug.current,
+  "treatments": *[_type == "treatment" && defined(slug.current)].slug.current
 }`

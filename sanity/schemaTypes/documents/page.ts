@@ -59,6 +59,15 @@ export const page = defineType({
       rows: 3,
       group: 'content',
     }),
+    defineField({
+      name: 'faqs',
+      title: 'FAQs',
+      description:
+        'FAQs to render on this page, e.g. for access/funding pages like Medicare, NDIS, Fees, or WorkCover.',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'faq' }] }],
+      group: 'content',
+    }),
 
     defineField({
       name: 'showInNavByDefault',

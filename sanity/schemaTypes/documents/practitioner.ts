@@ -15,6 +15,25 @@ export const practitioner = defineType({
       type: 'image',
       options: { hotspot: true },
     }),
+    defineField({
+      name: 'ahpraNumber',
+      title: 'AHPRA Registration Number',
+      description: 'Used in JSON-LD Person structured data for E-E-A-T signal',
+      type: 'string',
+    }),
+    defineField({
+      name: 'specialInterests',
+      title: 'Special Interests',
+      description: 'e.g. "Sports Podiatry", "Diabetic Foot Care"',
+      type: 'array',
+      of: [{ type: 'string' }],
+    }),
+    defineField({
+      name: 'languagesSpoken',
+      title: 'Languages Spoken',
+      type: 'array',
+      of: [{ type: 'string' }],
+    }),
   ],
   orderings: [
     { name: 'title', title: 'Title', by: [{ field: 'title', direction: 'asc' }] },

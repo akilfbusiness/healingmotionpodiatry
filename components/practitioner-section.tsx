@@ -2,12 +2,15 @@ import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { getHomePage } from '@/lib/sanity/data'
 import { urlForImage } from '@/lib/sanity/image'
-import { RichTextContent } from '@/components/portable-text'
 
+// Wired to the `practitioner` document (previously unused by the frontend)
+// rather than `teamMember`. Also feeds the JSON-LD Person schema in
+// structured-data.tsx — ahpraNumber/specialInterests/languagesSpoken are
+// real E-E-A-T signal for a health service, not just display copy.
 export async function PractitionerSection() {
   const homePage = await getHomePage()
   const section = homePage?.practitionerSection
-  const practitioner = section?.member
+  const practitioner = section?.practitioner
   if (!practitioner) return null
 
   const photoUrl = urlForImage(practitioner.photo)?.width(560).height(560).fit('crop').url()
@@ -32,15 +35,25 @@ export async function PractitionerSection() {
           <h2 className="font-heading text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             {practitioner.name}
           </h2>
-          {practitioner.credentials && (
-            <p className="mt-1 text-sm font-medium text-primary">{practitioner.credentials}</p>
+          {(practitioner.credentials || practitioner.title) && (
+            <p className="mt-1 text-sm font-medium text-primary">
+              {practitioner.credentials || practitioner.title}
+            </p>
           )}
-          {practitioner.jobTitle && !practitioner.credentials && (
-            <p className="mt-1 text-sm font-medium text-primary">{practitioner.jobTitle}</p>
+          {practitioner.bio && (
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground text-pretty">
+              {practitioner.bio}
+            </p>
           )}
-          <div className="mt-4 max-w-2xl [&>p:first-child]:mt-0">
-            <RichTextContent value={practitioner.bio} />
-          </div>
+          {practitioner.specialInterests && practitioner.specialInterests.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {practitioner.specialInterests.map((interest) => (
+                <Badge key={interest} variant="outline">
+                  {interest}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>
