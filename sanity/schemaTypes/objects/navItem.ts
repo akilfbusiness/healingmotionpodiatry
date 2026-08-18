@@ -29,13 +29,18 @@ export const navItem = defineType({
       title: 'Internal Page',
       type: 'reference',
       to: [
-        { type: 'service' },
+        { type: 'category' },
+        { type: 'condition' },
+        { type: 'treatment' },
         { type: 'faq' },
         { type: 'serviceArea' },
         { type: 'areasHub' },
         { type: 'blogPost' },
         { type: 'blogCategory' },
         { type: 'page' },
+        // Legacy taxonomy, kept referenceable until `service` documents are
+        // retired in favor of `condition`/`treatment`.
+        { type: 'service' },
       ],
       hidden: ({ parent }) => parent?.linkType !== 'internal',
     }),

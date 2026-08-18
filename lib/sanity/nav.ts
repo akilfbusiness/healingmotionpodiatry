@@ -14,6 +14,14 @@ export type ResolvedNavItem = {
 
 export function resolveInternalHref(type?: string, slug?: string | null): string {
   switch (type) {
+    case 'category':
+      return slug ? `/${slug}` : '/'
+    case 'condition':
+      return slug ? `/conditions/${slug}` : '/conditions'
+    case 'treatment':
+      return slug ? `/treatments/${slug}` : '/treatments'
+    // Legacy taxonomy, kept resolvable until `service` documents are retired
+    // in favor of `condition`/`treatment`.
     case 'service':
       return slug ? `/services/${slug}` : '/services'
     case 'serviceArea':
