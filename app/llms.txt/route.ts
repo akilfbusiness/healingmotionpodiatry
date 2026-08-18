@@ -54,7 +54,7 @@ export async function GET() {
     ...services.map((s) => `- [${s.name}](${settings.siteUrl}/services/${s.slug}): ${s.summary ?? ''}`),
     '',
     '## Areas served',
-    ...areas.map((a) => `- [${a.suburb}](${settings.siteUrl}/areas/${a.slug}): ${a.summary ?? ''}`),
+    ...areas.map((a) => `- [${a.suburb}](${settings.siteUrl}/podiatrist-${a.slug}): ${a.summary ?? ''}`),
     '',
     '## Frequently asked questions',
     ...faqs.map((f) => `- Q: ${f.question}\n  A: ${f.answer}`),

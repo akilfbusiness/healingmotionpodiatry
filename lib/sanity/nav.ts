@@ -25,7 +25,7 @@ export function resolveInternalHref(type?: string, slug?: string | null): string
     case 'service':
       return slug ? `/services/${slug}` : '/services'
     case 'serviceArea':
-      return slug ? `/areas/${slug}` : '/areas'
+      return slug ? `/podiatrist-${slug}` : '/areas'
     case 'areasHub':
       return '/areas'
     case 'blogPost':

@@ -315,7 +315,10 @@ export type ServiceArea = {
 }
 
 export type ServiceAreaDetail = ServiceArea & {
+  landmarks?: string[]
+  travelInfo?: string
   featuredServices?: Service[]
+  featuredConditions?: AnswerCard[]
   answerCapsule?: string
   body?: PageBuilderBlock[]
   seo?: Seo

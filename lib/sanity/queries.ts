@@ -376,7 +376,10 @@ export const serviceAreaBySlugQuery = groq`*[_type == "serviceArea" && slug.curr
   summary,
   heroImage,
   distanceFromClinic,
+  landmarks,
+  travelInfo,
   "featuredServices": featuredServices[]->{ name, "slug": slug.current, summary },
+  "featuredConditions": featuredConditions[]->{ ${answerCardFields} },
   answerCapsule,
   body[]{
     ${pageBuilderProjection}

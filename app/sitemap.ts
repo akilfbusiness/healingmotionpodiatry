@@ -58,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   const areaRoutes: MetadataRoute.Sitemap = slugs.areas.map((slug) => ({
-    url: `${settings.siteUrl}/areas/${slug}`,
+    url: `${settings.siteUrl}/podiatrist-${slug}`,
     lastModified: now,
     changeFrequency: 'monthly',
     priority: 0.6,

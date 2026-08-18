@@ -47,7 +47,7 @@ export default async function AreasPage() {
             return (
               <Link
                 key={area.slug}
-                href={`/areas/${area.slug}`}
+                href={`/podiatrist-${area.slug}`}
                 className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary"
               >
                 <div className="relative aspect-[10/7] w-full overflow-hidden bg-secondary">
