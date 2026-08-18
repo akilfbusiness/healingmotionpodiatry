@@ -1,7 +1,9 @@
 import { permanentRedirect } from 'next/navigation'
 
-// Legacy path. The canonical suburb page now lives at /podiatrist-[suburb]
-// (see app/podiatrist-[suburb]/page.tsx). This route is kept only so any
+// Legacy path. The canonical suburb page now lives at /podiatrist-{suburb}
+// (handled by the "podiatrist-" prefix branch in app/[slug]/page.tsx, since
+// Next.js dynamic route folders can't mix literal text with brackets).
+// This route is kept only so any
 // old /areas/[slug] link (external backlinks, cached search results,
 // bookmarks) still resolves — content-level `redirect` documents in Sanity
 // cover the same old URLs via proxy.ts, so most requests never reach here;
