@@ -169,9 +169,9 @@ export type HubGroup = {
 export type HomePageCategorySection = {
   title: string
   slug: string
-  featured: (AnswerCard & { type: 'condition' | 'treatment' })[]
-  remainingConditions: AnswerCard[]
-  remainingTreatments: AnswerCard[]
+  featured?: (AnswerCard & { type: 'condition' | 'treatment' })[] | null
+  remainingConditions?: AnswerCard[] | null
+  remainingTreatments?: AnswerCard[] | null
 }
 
 export type Service = {
