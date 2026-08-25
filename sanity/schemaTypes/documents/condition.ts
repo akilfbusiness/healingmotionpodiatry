@@ -79,6 +79,7 @@ export const condition = defineType({
       description: 'This condition\'s one true home in the site hierarchy',
       type: 'reference',
       to: [{ type: 'category' }],
+      weak: true,
       group: 'linking',
       validation: (Rule) => Rule.required(),
     }),

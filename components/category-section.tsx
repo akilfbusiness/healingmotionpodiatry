@@ -11,9 +11,12 @@ import { urlForImage } from '@/lib/sanity/image'
 // nothing here is manually curated, so a newly published condition or
 // treatment appears automatically without anyone touching the home page.
 export function CategorySection({ category }: { category: HomePageCategorySection }) {
-  const remaining = [...category.remainingConditions, ...category.remainingTreatments]
+  const featured = category.featured ?? []
+  const remainingConditions = category.remainingConditions ?? []
+  const remainingTreatments = category.remainingTreatments ?? []
+  const remaining = [...remainingConditions, ...remainingTreatments]
 
-  if (category.featured.length === 0 && remaining.length === 0) return null
+  if (featured.length === 0 && remaining.length === 0) return null
 
   return (
     <section
@@ -34,9 +37,9 @@ export function CategorySection({ category }: { category: HomePageCategorySectio
           </Link>
         </div>
 
-        {category.featured.length > 0 && (
+        {featured.length > 0 && (
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {category.featured.map((item) => (
+            {featured.map((item) => (
               <FeaturedCard key={item.slug} item={item} />
             ))}
           </div>
@@ -45,7 +48,7 @@ export function CategorySection({ category }: { category: HomePageCategorySectio
         {remaining.length > 0 && (
           <ul className="mt-6 grid gap-2 sm:grid-cols-2">
             {remaining.map((item) => {
-              const isTreatment = category.remainingTreatments.some((t) => t.slug === item.slug)
+              const isTreatment = remainingTreatments.some((t) => t.slug === item.slug)
               return (
                 <li key={item.slug}>
                   <Link
